@@ -13,11 +13,12 @@ public class ProductControllerRA {
     public void setUp () {
         baseURI = "http://localhost:8080";
         existingProductId = 3L;
+        nonExistingProductId = 500L;
 
     }
 
     @Test
-    void findByIdShouldReturnProductDTOWhenIdExists () {
+    void findByIdShouldReturnProductDTOWhenProductIdExists () {
         int existingProductIdInteger = existingProductId.intValue();
         given()
                 .get("/products/{id}", existingProductIdInteger)
@@ -31,4 +32,12 @@ public class ProductControllerRA {
                 .body("categories.name", hasItems("Computadores", "Eletrônicos"));
     }
 
+    @Test
+    void findByIdShouldReturnEntityNotFoundDWhenProductIdDoesNotExist () {
+        int nonExistingProductIdInteger = nonExistingProductId.intValue();
+        given()
+                .get("/products/{id}", nonExistingProductIdInteger)
+         .then()
+                .statusCode(404);
+    }
 }

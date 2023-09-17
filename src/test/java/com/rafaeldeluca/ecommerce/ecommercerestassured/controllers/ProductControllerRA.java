@@ -69,4 +69,6 @@ public class ProductControllerRA {
                 .body("content.name[0]", equalTo("Rails for Dummies"))
                 .body("content.imgUrl[0]", equalTo("https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/5-big.jpg"));
     }
+
+    
 }

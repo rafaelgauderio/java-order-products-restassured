@@ -70,5 +70,21 @@ public class ProductControllerRA {
                 .body("content.imgUrl[0]", equalTo("https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/5-big.jpg"));
     }
 
-    
+    @Test
+    void findAllShouldReturnPageWhenProductPriceIsGreaterThen2200 () {
+        given()
+                .get("/products?size=25")
+        .then()
+                .statusCode(200)
+                .body("content.findAll {it.price > 2200}.name", hasItems("PC Gamer Hera","PC Gamer Max", "PC Gamer Min"));
+    }
+
+    @Test
+    void findAllShouldReturnPageWithOneProductWhenProductPriceIsEqualTo90_5 () {
+        given()
+                .get("/products?size=25")
+                .then()
+                .statusCode(200)
+                .body("content.findAll {it.price <= 90.5}.name", hasItems("The Lord of the Rings"));
+    }
 }

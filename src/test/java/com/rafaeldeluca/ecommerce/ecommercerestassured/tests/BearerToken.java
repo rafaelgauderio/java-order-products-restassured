@@ -25,7 +25,7 @@ public class BearerToken {
                         .post(tokenUrl);
     }
 
-    private static String obtainBearerToken(String username, String password) {
+    public static String obtainBearerToken(String username, String password) {
         Response response = authorizationRequest(username, password);
         JsonPath jsonPath = response.jsonPath();
         return jsonPath.getString("access_token");

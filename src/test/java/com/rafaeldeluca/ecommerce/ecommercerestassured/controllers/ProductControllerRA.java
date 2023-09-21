@@ -1,7 +1,14 @@
 package com.rafaeldeluca.ecommerce.ecommercerestassured.controllers;
 
+import com.rafaeldeluca.ecommerce.ecommercerestassured.tests.BearerToken;
+import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.matcher.RestAssuredMatchers.*;
@@ -9,6 +16,12 @@ import static org.hamcrest.Matchers.*;
 public class ProductControllerRA {
     private Long existingProductId, nonExistingProductId;
     private String productName;
+    private String clientUsername, clientPassword, adminUsername, adminPassword;
+    private String clientToken, adminToken, invalidToken;
+    private Map<String,Object> postProductMap, category1, category2;
+
+    private List<Map<String, Object>> categoriesList;
+
 
     @BeforeEach
     public void setUp () {
@@ -16,6 +29,27 @@ public class ProductControllerRA {
         existingProductId = 3L;
         nonExistingProductId = 500L;
         productName = "Rails for Dummies";
+
+        clientUsername = "carolina@gmail.com";
+        adminUsername = "rafaeldeluca@gmail.com";
+        clientPassword = adminPassword = "123456";
+
+        clientToken = BearerToken.obtainBearerToken(clientUsername, clientPassword);
+        adminToken = BearerToken.obtainBearerToken(adminUsername, adminPassword);
+        invalidToken = String.valueOf(new StringBuilder(clientToken).append("invalidString"));
+
+        categoriesList = new ArrayList<Map<String, Object>>();
+        category1 = new HashMap<String, Object>();
+        category1.put("id",2);
+        category2 = new HashMap<String, Object>();
+        category2.put("id",3);
+
+        postProductMap = new HashMap<String, Object>();
+        postProductMap.put("name", "Tablet Sansung");
+        postProductMap.put("descripiton", "Tablet Sansung , core i5, 4 Giga ram");
+        postProductMap.put("imgUrl", "https://melhoramentoshigieners.com.br/tablet.png");
+        postProductMap.put("price", 2500.90);
+        postProductMap.put("categories", categoriesList);
 
     }
 

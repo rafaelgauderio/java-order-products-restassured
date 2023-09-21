@@ -1,10 +1,16 @@
 package com.rafaeldeluca.ecommerce.ecommercerestassured.controllers;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.rafaeldeluca.ecommerce.ecommercerestassured.tests.BearerToken;
+import io.restassured.http.ContentType;
 import org.hamcrest.StringDescription;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +24,9 @@ public class ProductControllerRA {
     private String productName;
     private String clientUsername, clientPassword, adminUsername, adminPassword;
     private String clientToken, adminToken, invalidToken;
-    private Map<String,Object> postProductMap, category1, category2;
+    public Map<String,Object> postProductMap, category1, category2;
 
-    private List<Map<String, Object>> categoriesList;
+    public List<Map<String, Object>> categoriesList;
 
 
     @BeforeEach
@@ -32,24 +38,31 @@ public class ProductControllerRA {
 
         clientUsername = "carolina@gmail.com";
         adminUsername = "rafaeldeluca@gmail.com";
-        clientPassword = adminPassword = "123456";
+        clientPassword = "123456";
+        adminPassword = "123456";
 
         clientToken = BearerToken.obtainBearerToken(clientUsername, clientPassword);
         adminToken = BearerToken.obtainBearerToken(adminUsername, adminPassword);
         invalidToken = String.valueOf(new StringBuilder(clientToken).append("invalidString"));
+
+        postProductMap = new HashMap<String, Object>();
+        postProductMap.put("name", "Tablet Sansung");
+        postProductMap.put("description", "Tablet Sansung, core i5, 4 Giga ram");
+        postProductMap.put("imgUrl", "https://melhoramentoshigieners.com.br/tablet.png");
+        postProductMap.put("price", 2500.90);
+
 
         categoriesList = new ArrayList<Map<String, Object>>();
         category1 = new HashMap<String, Object>();
         category1.put("id",2);
         category2 = new HashMap<String, Object>();
         category2.put("id",3);
+        categoriesList.add(category1);
+        categoriesList.add(category2);
 
-        postProductMap = new HashMap<String, Object>();
-        postProductMap.put("name", "Tablet Sansung");
-        postProductMap.put("descripiton", "Tablet Sansung , core i5, 4 Giga ram");
-        postProductMap.put("imgUrl", "https://melhoramentoshigieners.com.br/tablet.png");
-        postProductMap.put("price", 2500.90);
         postProductMap.put("categories", categoriesList);
+
+
 
     }
 
@@ -80,7 +93,7 @@ public class ProductControllerRA {
     @Test
     void findAllShouldReturnPageWithAllProductsWhenProductNameIsEmpty () {
         given()
-                .get("products?size=25&page=0&sort=id")
+                .get("/products?size=30&page=0&sort=id")
         .then()
                 .statusCode(200)
                 .body("content.name", hasItems("The Lord of the Rings", "Smart TV","Macbook Pro"))
@@ -120,5 +133,30 @@ public class ProductControllerRA {
                 .then()
                 .statusCode(200)
                 .body("content.findAll {it.price <= 90.5}.name", hasItems("The Lord of the Rings"));
+    }
+
+    @Test()
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    void insertShouldCreateNewProductWhenUserLoggedAsAdmin () throws JsonParseException {
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+
+        //System.out.println(postProductMap);
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+         .then()
+                .statusCode(201)
+                .body("name", equalTo("Tablet Sansung"))
+                .body("description", equalTo("Tablet Sansung, core i5, 4 Giga ram"))
+                .body("imgUrl", equalTo("https://melhoramentoshigieners.com.br/tablet.png"))
+                .body("price", is(2500.90))
+                .body("categoriesList.id", hasItems(2,3));
+
     }
 }

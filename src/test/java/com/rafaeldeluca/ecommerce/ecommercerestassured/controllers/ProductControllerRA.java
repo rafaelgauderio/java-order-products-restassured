@@ -7,6 +7,7 @@ import com.rafaeldeluca.ecommerce.ecommercerestassured.tests.BearerToken;
 import io.restassured.http.ContentType;
 import org.hamcrest.StringDescription;
 import org.json.JSONObject;
+import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -214,7 +215,6 @@ public class ProductControllerRA {
                 .statusCode(422)
                 .body("errors.message[0]", equalTo("O preço deve ser positivo"));
     }
-
     @Test
     void insertShouldReturnUnprocessableEntityWhenUserLoggerAsAdminAndPriceIsNegative () {
         Double negativePrice = -500.99;
@@ -232,5 +232,27 @@ public class ProductControllerRA {
                 .then()
                 .statusCode(422)
                 .body("errors.message[0]", equalTo("O preço deve ser positivo"));
+    }
+
+    @Test
+    void insertShouldReturnUnprocessableEntityWhenUserLoggerAsAdminAndNoCategoryIsAssociateToProduct () {
+
+        categoriesList = null;
+        postProductMap.put("categories", categoriesList);
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct.toString())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(422)
+                .body("errors.message[0]", equalTo("Produto deve ter pelo menos uma categoria"))
+                .body("errors.fieldName", hasItems("categories"));
+
     }
 }

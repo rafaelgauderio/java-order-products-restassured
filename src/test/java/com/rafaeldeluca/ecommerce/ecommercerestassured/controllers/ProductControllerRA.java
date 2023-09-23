@@ -7,11 +7,9 @@ import com.rafaeldeluca.ecommerce.ecommercerestassured.tests.BearerToken;
 import io.restassured.http.ContentType;
 import org.hamcrest.StringDescription;
 import org.json.JSONObject;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -271,7 +269,6 @@ public class ProductControllerRA {
                 .then()
                 .statusCode(403);
     }
-
     @Test
     void insertShouldReturnForbiddenWhenUserTryToLoggedWithInvalidToken () {
 
@@ -287,5 +284,20 @@ public class ProductControllerRA {
                 .post("/products")
                 .then()
                 .statusCode(401);
+    }
+
+    @Test
+    void deleteShouldReturnNoContentWhenProductIdExistsAndUserLoggedAsAdmin () {
+
+        // produto que existe pode ser deletado, sem pedido vinculado a esse produto
+        existingProductId = 24L;
+        JSONObject newProduct = new JSONObject(postProductMap);
+        // só precisa de cabeçalho, o id do Produto já é passado no endPoint
+        given()
+                .header("Authorization", "Bearer " + adminToken)
+        .when()
+                .delete("/products/{id}", existingProductId)
+        .then()
+                .statusCode(204); // http no content
     }
 }

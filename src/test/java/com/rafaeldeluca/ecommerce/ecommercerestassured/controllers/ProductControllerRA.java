@@ -236,7 +236,6 @@ public class ProductControllerRA {
 
     @Test
     void insertShouldReturnUnprocessableEntityWhenUserLoggerAsAdminAndNoCategoryIsAssociateToProduct () {
-
         categoriesList = null;
         postProductMap.put("categories", categoriesList);
         JSONObject newProduct = new JSONObject(postProductMap);
@@ -254,5 +253,22 @@ public class ProductControllerRA {
                 .body("errors.message[0]", equalTo("Produto deve ter pelo menos uma categoria"))
                 .body("errors.fieldName", hasItems("categories"));
 
+    }
+
+    @Test
+    void insertShouldReturnForbiddenWhenUserLoggerAsClient () {
+        // can not insert a product when logged with a client token
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + clientToken)
+                .body(newProduct.toString())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(403);
     }
 }

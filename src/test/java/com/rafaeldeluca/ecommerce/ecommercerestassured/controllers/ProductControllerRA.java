@@ -342,4 +342,16 @@ public class ProductControllerRA {
                 .then()
                 .statusCode(403); // http Forbidden
     }
+    @Test
+    void deleteShouldReturnUnauthorizedWhenProductIdExistsAndUserTryToLoginWithInvalidToken () {
+
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Authorization", "Bearer " + invalidToken)
+                .when()
+                .delete("/products/{id}", existingProductId)
+                .then()
+                .statusCode(401); // http Unauthorized
+    }
 }

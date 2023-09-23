@@ -271,4 +271,21 @@ public class ProductControllerRA {
                 .then()
                 .statusCode(403);
     }
+
+    @Test
+    void insertShouldReturnForbiddenWhenUserTryToLoggedWithInvalidToken () {
+
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + invalidToken)
+                .body(newProduct.toString())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(401);
+    }
 }

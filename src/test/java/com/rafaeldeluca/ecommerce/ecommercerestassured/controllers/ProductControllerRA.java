@@ -311,6 +311,35 @@ public class ProductControllerRA {
                 .when()
                 .delete("/products/{id}", nonExistingProductId)
                 .then()
-                .statusCode(404); // http bad Request
+                .statusCode(404) // http bad Request
+                .body("error", equalTo("Recurso não encontrado"))
+                .body("status", equalTo(404));
+
+    }
+
+    @Test
+    void deleteShouldReturnForbiddenWhenProductDependentIdAndUserLoggedAsAdmin () {
+
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Authorization", "Bearer " + adminToken)
+                .when()
+                .delete("/products/{id}", dependentProductId)
+                .then()
+                .statusCode(400); // http Forbidden
+    }
+
+    @Test
+    void deleteShouldReturnForbiddenWhenProductIdExistsAndUserLoggedAsClient () {
+
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Authorization", "Bearer " + clientToken)
+                .when()
+                .delete("/products/{id}", existingProductId)
+                .then()
+                .statusCode(403); // http Forbidden
     }
 }

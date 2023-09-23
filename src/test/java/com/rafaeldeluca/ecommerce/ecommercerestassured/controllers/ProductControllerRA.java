@@ -19,7 +19,7 @@ import static io.restassured.RestAssured.*;
 import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
 public class ProductControllerRA {
-    private Long existingProductId, nonExistingProductId;
+    private Long existingProductId, nonExistingProductId, dependentProductId;
     private String productName;
     private String clientUsername, clientPassword, adminUsername, adminPassword;
     private String clientToken, adminToken, invalidToken;
@@ -31,7 +31,7 @@ public class ProductControllerRA {
     @BeforeEach
     public void setUp () {
         baseURI = "http://localhost:8080";
-        existingProductId = 3L;
+        existingProductId = dependentProductId = 3L;
         nonExistingProductId = 500L;
         productName = "Rails for Dummies";
 
@@ -299,5 +299,18 @@ public class ProductControllerRA {
                 .delete("/products/{id}", existingProductId)
         .then()
                 .statusCode(204); // http no content
+    }
+
+    @Test
+    void deleteShouldReturnNotFoundWhenProductIdDoesNotExistsAndUserLoggedAsAdmin () {
+
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Authorization", "Bearer " + adminToken)
+                .when()
+                .delete("/products/{id}", nonExistingProductId)
+                .then()
+                .statusCode(404); // http bad Request
     }
 }

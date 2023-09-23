@@ -158,7 +158,6 @@ public class ProductControllerRA {
                 .body("categories.id", hasItems(2,3));
 
     }
-
     @Test()
     void insertShouldReturnUnprocessableEntityWhenWhenUserLoggedAsAdminAndInvalidName ()  {
         String invalidName = "Ra";
@@ -176,5 +175,24 @@ public class ProductControllerRA {
                 .then()
                 .statusCode(422)
                 .body("errors.message[0]", equalTo("Nome precisa ter de 3 a 80 caracteres"));
+    }
+
+    @Test()
+    void insertShouldReturnUnprocessableEntityWhenWhenUserLoggedAsAdminAndInvalidDescription ()  {
+        String invalidDescription = "invalid";
+        postProductMap.put("description", invalidDescription);
+        JSONObject newProduct = new JSONObject(postProductMap);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct.toString())
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(422)
+                .body("errors.message[0]", equalTo("Descrição precisa ter no mínimo 10 caracteres"));
     }
 }

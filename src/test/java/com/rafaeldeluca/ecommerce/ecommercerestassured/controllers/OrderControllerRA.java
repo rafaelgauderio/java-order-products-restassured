@@ -10,7 +10,7 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 public class OrderControllerRA {
 
-    private Long existingOrderId, nonExistingOrderID;
+    private Long existingOrderId, nonExistingOrderID, adminOrderId;
     private String clientUsername, clientPassword, adminUsername, adminPassword;
     private String clientToken, adminToken, invalidToken;
 
@@ -20,6 +20,7 @@ public class OrderControllerRA {
         baseURI = "http://localhost:8080";
 
         existingOrderId = 1L;
+        adminOrderId = 2L;
         nonExistingOrderID = 50L;
 
         clientUsername = "carolina@gmail.com";
@@ -70,6 +71,19 @@ public class OrderControllerRA {
                 .body("items.productId", hasItems(1, 3))
                 .body("items.name", hasItems("The Lord of the Rings","Macbook Pro"))
                 .body("total", is(1431.0F));
+    }
+
+    @Test
+    void findByIdShouldReturnOrderWhenIdExistsAndUserLoggedAsClientAndOrderBelongsToClientOtherClient () {
+
+        given()
+         .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + clientToken)
+                .accept(ContentType.JSON)
+                .when()
+                .get("/orders/{id}", adminOrderId)
+                .then()
+                .statusCode(403);
     }
 
 

@@ -104,11 +104,20 @@ public class OrderControllerRA {
                 .header("Content-type", "application/json")
                 .header("Authorization", "Bearer " + adminToken)
                 .accept(ContentType.JSON)
-                .when()
+        .when()
                 .get("/orders/{id}" ,nonExistingOrderID)
-                .then()
+        .then()
                 .statusCode(404); // Not Found
     }
-
-
+    @Test
+    void findByIdShouldReturnUnauthorizedWhenIdDoesExistsUserTryToLoggedWithInvalidToken () {
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + invalidToken)
+                .accept(ContentType.JSON)
+        .when()
+                .get("/orders/{id}", existingOrderId)
+        .then()
+                .statusCode(401); // Not Found
+    }
 }
